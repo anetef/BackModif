@@ -1,0 +1,19 @@
+
+### 
+GET http://localhost:3000/user
+
+### 
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+  "nome": "Débora",
+  "email": "teste@email.com",
+  "senha": "123456"
+}
+
+### 
+GET http://localhost:3000/user/1
+
+### 
+DELETE http://localhost:3000/user/1
