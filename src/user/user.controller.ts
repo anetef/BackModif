@@ -16,7 +16,9 @@ export class UserController {
   }
 
   @Post('login') // Rota de login
+
   @HttpCode(HttpStatus.OK)
+  
   // Adicione ValidationPipe para validar o DTO de login
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async login(@Body() loginUserDto: LoginUserDto) { // Use o DTO específico para login
