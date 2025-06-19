@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
-
+  //define os dados esperados na hora de fazer o cadastro do usuario pela rota POST/user
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()

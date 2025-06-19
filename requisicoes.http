@@ -7,9 +7,17 @@ POST http://localhost:3000/user
 Content-Type: application/json
 
 {
-  "nome": ,
-  "email":,
+  "nome": "",
+  "email": "",
   "senha": 
+}
+###
+POST http://localhost:3000/user/login
+Content-Type: application/json
+
+{
+  "email": "",
+  "senha": ""
 }
 
 ### 

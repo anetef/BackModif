@@ -7,7 +7,7 @@ import { User } from './user/entities/user.entity';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
-    type: 'sqlite',
+    type: 'sqlite',  //define que tipo de banco de dados 
     database: 'db.sqlite',
     entities: [User],
     synchronize: true,

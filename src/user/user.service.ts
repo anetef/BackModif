@@ -1,39 +1,41 @@
-import { Injectable, NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common'; // Adicione UnauthorizedException
+import { Injectable, NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt'; // importação da biblioteca para o hash das senhas
 
 @Injectable()
 export class UserService {
   constructor(
-
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<Omit<User, 'senha'>> { 
     const existingUser = await this.userRepository.findOne({ where: { email: createUserDto.email } });
     if (existingUser) {
       throw new ConflictException('Este e-mail já está em uso.');
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.senha, 10);
+    const hashedPassword = await bcrypt.hash(createUserDto.senha, 10); // aqui acontece o hash da senha
     const newUser = this.userRepository.create({
       ...createUserDto,
       senha: hashedPassword,
     });
     
     console.log(`[UserService] Usuário criado com sucesso: ${newUser.email}`);
-    // console.log(`[UserService] Senha hasheada salva: ${hashedPassword}`); // CUIDADO: Não logue senhas em produção!
-    return this.userRepository.save(newUser);
+    // console.log(`[UserService] Senha hasheada salva: ${hashedPassword}`); 
+    
+    const savedUser = await this.userRepository.save(newUser); // Salva o usuário primeiro
+    const { senha, ...userWithoutSenha } = savedUser; // Desestrutura para remover a senha
+    return userWithoutSenha; // Retorna o objeto sem a senha
   }
 
   async validateUser(email: string, pass: string): Promise<any> {
     console.log(`[UserService] Tentativa de validação para email: ${email}`);
-    // console.log(`[UserService] Senha recebida para validação: ${pass}`); // CUIDADO: Não logue senhas em produção!
+    // console.log(`[UserService] Senha recebida para validação: ${pass}`); 
 
     const user = await this.userRepository.findOne({ where: { email } });
 
@@ -43,7 +45,7 @@ export class UserService {
     }
 
     console.log(`[UserService] Usuário encontrado. ID: ${user.id}, Email: ${user.email}`);
-    // console.log(`[UserService] Senha do DB (hasheada): ${user.senha}`); // CUIDADO: Não logue senhas em produção!
+    // console.log(`[UserService] Senha do DB (hasheada): ${user.senha}`); 
 
     const isPasswordValid = await bcrypt.compare(pass, user.senha); // Linha CRÍTICA de comparação
 
@@ -59,9 +61,6 @@ export class UserService {
     }
   }
 
-  // Seus outros métodos (findAll, findOne, update, remove) permanecem como no exemplo anterior,
-  // com as devidas atualizações para não retornar senhas e hashear no update.
-
   async findAll(): Promise<Omit<User, 'senha'>[]> {
     const users = await this.userRepository.find();
     return users.map(({ senha, ...userWithoutSenha }) => userWithoutSenha);
@@ -75,7 +74,7 @@ export class UserService {
     return userWithoutSenha;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<Omit<User, 'senha'>> { // <-- ATENÇÃO AQUI: Mudança no tipo de retorno para Omit<User, 'senha'>
     const user = await this.userRepository.findOneBy({ id });
     if (!user) throw new NotFoundException('Usuário não encontrado para atualização.');
 
@@ -87,7 +86,7 @@ export class UserService {
     const updatedUser = await this.userRepository.save(user);
     
     const { senha, ...result } = updatedUser;
-    return result as User;
+    return result; 
   }
 
   async remove(id: number): Promise<void> {

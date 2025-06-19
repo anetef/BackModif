@@ -1,13 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common'; // Importe ValidationPipe
+import { ValidationPipe } from '@nestjs/common'; 
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Habilita CORS
+  // Habilita CORS para permitir q o front-end faça requisições para o back
   app.enableCors({
-    origin: 'http://localhost:5173', // Permita apenas o seu frontend
+    origin: 'http://localhost:5173', //aqui define em qual port
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true, // Se você usa cookies ou cabeçalhos de autorização como JWT
   });

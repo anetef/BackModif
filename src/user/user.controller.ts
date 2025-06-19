@@ -2,14 +2,14 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UnauthorizedExceptio
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { LoginUserDto } from './dto/login-user.dto'; // Importe o novo DTO
+import { LoginUserDto } from './dto/login-user.dto'; 
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  // Adicione ValidationPipe para validar o DTO de criação
+
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
@@ -19,22 +19,18 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   
-  // Adicione ValidationPipe para validar o DTO de login
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  async login(@Body() loginUserDto: LoginUserDto) { // Use o DTO específico para login
+  async login(@Body() loginUserDto: LoginUserDto) { 
     console.log('[UserController] Recebido pedido de login para email:', loginUserDto.email);
     const user = await this.userService.validateUser(loginUserDto.email, loginUserDto.senha);
 
     if (!user) {
-      // Automaticamente NestJS lança 401 Unauthorized para UnauthorizedException
       throw new UnauthorizedException('E-mail ou senha inválidos.');
     }
 
     return {
       message: 'Login bem-sucedido!',
       user: user,
-      // Em uma aplicação real, aqui você retornaria um JWT
-      // Por exemplo: accessToken: this.authService.generateJwtToken(user)
     };
   }
 
